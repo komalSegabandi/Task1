@@ -3,3 +3,5 @@ Welcome to
 mango
 kheer
 pasta
+ fried
+ rice
