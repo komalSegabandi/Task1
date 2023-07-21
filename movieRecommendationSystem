@@ -1,0 +1,137 @@
+import java.util.*;
+
+ class Movie {
+    private String title;
+    private List<String> genres;
+
+    public Movie(String title, List<String> genres) {
+        this.title = title;
+        this.genres = genres;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public List<String> getGenres() {
+        return genres;
+    }
+}
+
+class User {
+    private String name;
+    private Map<Movie, Double> ratings;
+
+    public User(String name) {
+        this.name = name;
+        this.ratings = new HashMap<>();
+    }
+
+    public void rateMovie(Movie movie, double rating) {
+        ratings.put(movie, rating);
+    }
+
+
+
+    public double getRatingForGenre(String genre) {
+        double totalRating = 0.0;
+        int numberOfRatings = 0;
+
+        for (Movie movie : ratings.keySet()) {
+            for (String movieGenre : movie.getGenres()) {
+                if (genre.equals(movieGenre)) {
+                    totalRating += ratings.get(movie);
+                    numberOfRatings++;
+                }
+            }
+        }
+
+        return totalRating / Math.max(numberOfRatings, 1);
+    }
+}
+
+ class MovieRecommendationSystem {
+    private List<Movie> movies;
+    private List<User> users;
+
+    public MovieRecommendationSystem() {
+        movies = new ArrayList<>();
+        users = new ArrayList<>();
+    }
+
+    public void addMovie(Movie movie) {
+        movies.add(movie);
+    }
+
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    public List<Movie> recommendMovies(User user, int numRecommendations) {
+        Map<Movie, Double> scores = new HashMap<>();
+
+        for (Movie movie : movies) {
+            double score = 0.0;
+
+            // Calculate the content-based score for each movie based on user preferences
+            for (String genre : movie.getGenres()) {
+                score += user.getRatingForGenre(genre);
+            }
+
+            scores.put(movie, score);
+        }
+
+        List<Movie> recommendedMovies = new ArrayList<>(scores.keySet());
+        recommendedMovies.sort((m1, m2) -> Double.compare(scores.get(m2), scores.get(m1)));
+
+        return recommendedMovies.subList(0, Math.min(numRecommendations, recommendedMovies.size()));
+    }
+
+    public static void main(String[] args) {
+        // Create movies
+
+        Movie movie1 = new Movie("Movie 1",Arrays.asList("Action","comedy"));
+        Movie movie2 = new Movie("Movie 2", Arrays.asList("Sc-fi","thriller"));
+        Movie movie3 = new Movie("Movie 3",Arrays.asList("Drama"));
+        Movie movie4 = new Movie("Movie 4",Arrays.asList("Fantasy","Adventure","Dark Comedy"));
+        Movie movie5 = new Movie("Movie 5",Arrays.asList("Musical"));
+        Movie movie6 = new Movie("Movie 6",Arrays.asList("War","Epic","History"));
+        Movie movie7 = new Movie("Movie 7",Arrays.asList("Mystery"));
+        // Add movies to the recommendation system
+        MovieRecommendationSystem recommendationSystem = new MovieRecommendationSystem();
+        recommendationSystem.addMovie(movie1);
+        recommendationSystem.addMovie(movie2);
+        recommendationSystem.addMovie(movie3);
+        recommendationSystem.addMovie(movie4);
+        recommendationSystem.addMovie(movie5);
+        recommendationSystem.addMovie(movie6);
+        recommendationSystem.addMovie(movie7);
+
+        // Create users and rate movies
+        User user1 = new User("User 1");
+        user1.rateMovie(movie1, 2.0);
+        user1.rateMovie(movie2, 3.0);
+        user1.rateMovie(movie3,10.0);
+        user1.rateMovie(movie4,10.0);
+        user1.rateMovie(movie7,7.8);
+        User user2 = new User("User 2");
+        user2.rateMovie(movie2, 0.0);
+        user2.rateMovie(movie3, 5.0);
+        user2.rateMovie(movie1,5.0);
+        user2.rateMovie(movie6,8.8);
+        User user3 = new User("User 3");
+        user3.rateMovie(movie7,9.8);
+        user3.rateMovie(movie2,2.0);
+        // Add users to the recommendation system
+        recommendationSystem.addUser(user1);
+        recommendationSystem.addUser(user2);
+        recommendationSystem.addUser(user3);
+
+        // Recommend movies for a user
+        List<Movie> recommendedMovies = recommendationSystem.recommendMovies(user3, 1);
+        System.out.println("Recommended movies for User 3:");
+        for (Movie movie : recommendedMovies) {
+            System.out.println(movie.getTitle());
+        }
+    }
+}
